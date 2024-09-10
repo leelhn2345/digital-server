@@ -5,5 +5,16 @@ services:
       - prod
     image: leelhn2345/digital-server
     container_name: digital-server
-    ports:
-      - 3000:3000
+    networks:
+      - shared-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`api.${DOMAIN_URL}`)
+      - traefik.http.routers.${SERVICE_NAME}.entrypoints=websecure
+      - traefik.http.routers.${SERVICE_NAME}.tls.certresolver=myresolver
+      - traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=3000
+      - com.centurylinklabs.watchtower.enable=true
+
+networks:
+  shared-network:
+    external: true
