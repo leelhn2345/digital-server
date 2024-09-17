@@ -17,8 +17,11 @@ services:
       - prod
     image: leelhn2345/digital-server
     container_name: digital-server
+    restart: unless-stopped
     networks:
       - shared-network
+    env_file:
+      - .env
     labels:
       - traefik.enable=true
       - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUB_DOMAIN}.${DOMAIN_URL}`)
