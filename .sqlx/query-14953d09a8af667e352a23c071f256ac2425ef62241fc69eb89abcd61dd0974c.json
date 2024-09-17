@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select about_me from profile_about_me",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "about_me",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "14953d09a8af667e352a23c071f256ac2425ef62241fc69eb89abcd61dd0974c"
+}

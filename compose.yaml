@@ -1,5 +1,17 @@
 # to simulate production runtime on localhost
 services:
+  digital-server-dev:
+    profiles:
+      - dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: digital-server
+    ports:
+      - 5000:5000
+    env_file:
+      - .env
+
   digital-server:
     profiles:
       - prod
@@ -9,10 +21,10 @@ services:
       - shared-network
     labels:
       - traefik.enable=true
-      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`api.${DOMAIN_URL}`)
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUB_DOMAIN}.${DOMAIN_URL}`)
       - traefik.http.routers.${SERVICE_NAME}.entrypoints=websecure
       - traefik.http.routers.${SERVICE_NAME}.tls.certresolver=myresolver
-      - traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=3000
+      - traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=5000
       - com.centurylinklabs.watchtower.enable=true
 
 networks:

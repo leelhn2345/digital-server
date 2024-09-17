@@ -1,0 +1,44 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select company_name, company_url, job_title , time_span, description \n        from profile_jobs\n        order by id desc",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "company_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "company_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "job_title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "time_span",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "TextArray"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "bb9c0ad8f777565f0adfa423fed0a6bdc94a1e7fa1699a3429abf8c45642ceeb"
+}

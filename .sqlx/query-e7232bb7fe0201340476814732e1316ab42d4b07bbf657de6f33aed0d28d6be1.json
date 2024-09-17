@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select languages from profile_skills_languages",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "languages",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e7232bb7fe0201340476814732e1316ab42d4b07bbf657de6f33aed0d28d6be1"
+}
