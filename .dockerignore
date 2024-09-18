@@ -6,3 +6,4 @@ Makefile
 compose.yaml
 .taplo.toml
 .gitignore
+.env
