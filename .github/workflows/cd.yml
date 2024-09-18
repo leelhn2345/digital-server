@@ -8,7 +8,7 @@ on:
       - completed
 
 env:
-  IMAGE_NAME: digital-records
+  IMAGE_NAME: digital-server
 
 jobs:
   deploy:
