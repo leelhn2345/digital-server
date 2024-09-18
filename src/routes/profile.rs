@@ -64,6 +64,7 @@ pub struct Projects {
         (status = 505, description = "internal server error")
     )
 )]
+#[tracing::instrument(skip_all)]
 pub async fn get_profile(State(app): State<AppState>) -> Result<Json<Profile>, AppError> {
     let pool = app.pool;
 
@@ -95,8 +96,8 @@ async fn get_profile_image(s3_client: Client) -> Result<String, AppError> {
         .key("profile.jpg")
         .presigned(presign_config)
         .await
-        .map_err(|_| {
-            tracing::error!("can't get presign info");
+        .map_err(|e| {
+            tracing::error!("{e:#?}");
             S3Error::SdkError("can't get presign".into())
         })?;
 

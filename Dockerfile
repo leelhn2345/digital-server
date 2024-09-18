@@ -14,6 +14,8 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY . .
+
+ENV SQLX_OFFLINE=true
 RUN cargo build --release --bin digital-server
 
 # We do not need the Rust toolchain to run the binary!
@@ -25,8 +27,8 @@ RUN apt-get update -y \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
-# COPY settings settings
-# COPY migrations migrations
+COPY settings settings
+COPY migrations migrations
 COPY --from=builder /app/target/release/digital-server digital-server
 
 ENV APP_ENVIRONMENT=production

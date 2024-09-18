@@ -1,17 +1,5 @@
 # to simulate production runtime on localhost
 services:
-  digital-server-dev:
-    profiles:
-      - dev
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: digital-server
-    ports:
-      - 5000:5000
-    env_file:
-      - .env
-
   digital-server:
     profiles:
       - prod

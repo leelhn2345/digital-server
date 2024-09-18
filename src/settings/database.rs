@@ -51,7 +51,6 @@ impl DatabaseSettings {
         let db_url = options.to_url_lossy().to_string();
 
         if !self.check_db_exists(&db_url).await {
-            println!("doesn't exists");
             self.create_db(&db_url).await;
         }
 
@@ -60,8 +59,6 @@ impl DatabaseSettings {
             .connect_lazy_with(options);
 
         if *env == Environment::Production {
-            println!("hello");
-
             sqlx::migrate!("./migrations")
                 .run(&pool)
                 .await

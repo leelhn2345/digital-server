@@ -1,5 +1,7 @@
 use axum::{
-    http::{header::CONTENT_TYPE, StatusCode},
+    body::Body,
+    extract::Request,
+    http::{header::CONTENT_TYPE, Response, StatusCode},
     response::Html,
     routing::get,
     Router,
@@ -7,7 +9,8 @@ use axum::{
 use profile::get_profile;
 use secrecy::{ExposeSecret, Secret};
 use tower::ServiceBuilder;
-use tower_http::cors::CorsLayer;
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
+use tracing::Span;
 
 use crate::{environment::Environment, AppState};
 use utoipa::OpenApi;
@@ -31,7 +34,29 @@ pub fn app_router(
         .allow_headers([CONTENT_TYPE])
         .allow_credentials(true);
 
-    let layers = ServiceBuilder::new().layer(cors_layer);
+    let trace_layer = TraceLayer::new_for_http()
+        .make_span_with(|request: &Request<Body>| {
+            let request_id = uuid::Uuid::new_v4();
+            tracing::info_span!(
+                "request",
+                method = tracing::field::display(request.method()),
+                uri = tracing::field::display(request.uri()),
+                version = tracing::field::debug(request.version()),
+                request_id = tracing::field::display(request_id),
+                latency = tracing::field::Empty,
+                status_code = tracing::field::Empty,
+            )
+        })
+        .on_response(
+            |response: &Response<Body>, latency: std::time::Duration, span: &Span| {
+                span.record("status_code", tracing::field::display(response.status()));
+                span.record("latency", tracing::field::debug(latency));
+                // add tracing below here
+                // useful if using bunyan trace format
+            },
+        );
+
+    let layers = ServiceBuilder::new().layer(trace_layer).layer(cors_layer);
 
     let router = Router::new()
         .route("/profile", get(get_profile))

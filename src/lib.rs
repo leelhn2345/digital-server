@@ -26,7 +26,9 @@ impl AppState {
 pub async fn init_app() {
     let env = Environment::new();
     let settings = Settings::new(&env).expect("failed to parse settings");
+
     init_tracing(&env, vec!["digital_server"]);
+
     let s3 = settings.s3.new_client();
     let pool = settings.database.get_connection_pool(&env).await;
 
