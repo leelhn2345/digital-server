@@ -29,6 +29,8 @@ pub async fn init_app() {
 
     init_tracing(&env, vec!["digital_server"]);
 
+    tracing::debug!("{settings:#?}");
+
     let s3 = settings.s3.new_client();
     let pool = settings.database.get_connection_pool(&env).await;
 

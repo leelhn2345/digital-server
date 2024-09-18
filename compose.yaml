@@ -1,5 +1,23 @@
 # to simulate production runtime on localhost
 services:
+  digital-server-dev:
+    profiles:
+      - dev
+    image: digital-server
+    container_name: digital-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - shared-network
+    env_file:
+      - .env
+    expose:
+      - 5000
+    environment:
+      - APP_DATABASE__HOST=postgres-db
+      - APP_APP__CORS_ALLOW_ORIGIN=http://digital-records:5173
+
   digital-server:
     profiles:
       - prod
