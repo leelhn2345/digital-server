@@ -2,14 +2,14 @@ use aws_sdk_s3::{
     config::{Credentials, Region},
     Client, Config,
 };
-use secrecy::{ExposeSecret, Secret};
+use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct S3 {
     region: String,
-    access_key: Secret<String>,
-    secret_key: Secret<String>,
+    access_key: SecretString,
+    secret_key: SecretString,
     endpoint_url: String,
 }
 

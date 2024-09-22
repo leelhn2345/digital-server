@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use secrecy::{ExposeSecret, Secret};
+use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use sqlx::ConnectOptions;
 use sqlx::{
@@ -9,12 +9,10 @@ use sqlx::{
     PgPool,
 };
 
-use crate::environment::Environment;
-
 #[derive(Debug, Deserialize, Clone)]
 pub struct DatabaseSettings {
     pub username: String,
-    pub password: Secret<String>,
+    pub password: SecretString,
     pub port: u16,
     pub host: String,
     pub database_name: String,
@@ -45,7 +43,7 @@ impl DatabaseSettings {
             .expect("can't create database");
     }
 
-    pub async fn get_connection_pool(self, env: &Environment) -> PgPool {
+    pub async fn get_connection_pool(self) -> PgPool {
         let options = self.with_db();
 
         let db_url = options.to_url_lossy().to_string();
@@ -58,12 +56,10 @@ impl DatabaseSettings {
             .acquire_timeout(Duration::from_secs(2))
             .connect_lazy_with(options);
 
-        if *env == Environment::Production {
-            sqlx::migrate!("./migrations")
-                .run(&pool)
-                .await
-                .expect("cannot run db migration");
-        }
+        sqlx::migrate!("../migrations")
+            .run(&pool)
+            .await
+            .expect("cannot run db migration");
 
         pool
     }

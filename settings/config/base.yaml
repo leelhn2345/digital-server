@@ -1,0 +1,6 @@
+app:
+  port: 5000
+database:
+  database_name: digital_server
+s3:
+  region: us-east-1

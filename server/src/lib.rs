@@ -32,7 +32,7 @@ pub async fn init_app() {
     tracing::debug!("{settings:#?}");
 
     let s3 = settings.s3.new_client();
-    let pool = settings.database.get_connection_pool(&env).await;
+    let pool = settings.database.get_connection_pool().await;
 
     let app_state = AppState::new(pool, s3);
 

@@ -15,7 +15,7 @@ use crate::{
 
 #[derive(ToSchema, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Profile {
+pub struct Resume {
     image_url: String,
     about_me: Vec<String>,
     skills: Skills,
@@ -57,26 +57,26 @@ pub struct Projects {
 
 #[utoipa::path(
     get,
-    tag="profile",
-    path="/profile",
+    tag="resume",
+    path="/resume",
     responses(
-        (status = 200, body = Profile),
+        (status = 200, body = Resume),
         (status = 505, description = "internal server error")
     )
 )]
 #[tracing::instrument(skip_all)]
-pub async fn get_profile(State(app): State<AppState>) -> Result<Json<Profile>, AppError> {
+pub async fn get_resume(State(app): State<AppState>) -> Result<Json<Resume>, AppError> {
     let pool = app.pool;
 
     let (image_url, skills, about_me, projects, job_experience) = try_join!(
-        get_profile_image(app.s3),
-        get_profile_skills(&pool),
-        get_profile_about_me(&pool),
+        get_resume_image(app.s3),
+        get_resume_skills(&pool),
+        get_resume_about_me(&pool),
         get_projects(&pool),
         get_jobs_in_company(&pool)
     )?;
 
-    Ok(axum::Json(Profile {
+    Ok(axum::Json(Resume {
         image_url,
         about_me,
         skills,
@@ -86,7 +86,7 @@ pub async fn get_profile(State(app): State<AppState>) -> Result<Json<Profile>, A
 }
 
 #[tracing::instrument(skip_all)]
-async fn get_profile_image(s3_client: Client) -> Result<String, AppError> {
+async fn get_resume_image(s3_client: Client) -> Result<String, AppError> {
     let presign_config =
         PresigningConfig::expires_in(Duration::from_secs(60 * 60)).map_err(S3Error::Presign)?;
 
@@ -104,18 +104,18 @@ async fn get_profile_image(s3_client: Client) -> Result<String, AppError> {
     Ok(presigned.uri().to_owned())
 }
 
-async fn get_profile_about_me(pool: &PgPool) -> Result<Vec<String>, AppError> {
-    let records = sqlx::query!("select about_me from profile_about_me")
+async fn get_resume_about_me(pool: &PgPool) -> Result<Vec<String>, AppError> {
+    let records = sqlx::query!("select about_me from resume_about_me")
         .fetch_all(pool)
         .await?;
     Ok(records.into_iter().map(|x| x.about_me).collect())
 }
 
-async fn get_profile_skills(pool: &PgPool) -> Result<Skills, AppError> {
-    let lang_query = sqlx::query!("select languages from profile_skills_languages").fetch_all(pool);
-    let tools_query = sqlx::query!("select tools from profile_skills_tools").fetch_all(pool);
-    let fw_query = sqlx::query!("select frameworks from profile_skills_frameworks").fetch_all(pool);
-    let others_query = sqlx::query!("select others from profile_skills_others").fetch_all(pool);
+async fn get_resume_skills(pool: &PgPool) -> Result<Skills, AppError> {
+    let lang_query = sqlx::query!("select languages from resume_skills_languages").fetch_all(pool);
+    let tools_query = sqlx::query!("select tools from resume_skills_tools").fetch_all(pool);
+    let fw_query = sqlx::query!("select frameworks from resume_skills_frameworks").fetch_all(pool);
+    let others_query = sqlx::query!("select others from resume_skills_others").fetch_all(pool);
 
     let (lang_rec, tool_rec, fw_rec, other_rec) =
         try_join!(lang_query, tools_query, fw_query, others_query)?;
@@ -138,7 +138,7 @@ async fn get_projects(pool: &PgPool) -> Result<Vec<Projects>, AppError> {
         Projects,
         "select
         project_name, project_url, description
-        from profile_projects
+        from resume_projects
         order by id desc
         "
     )
@@ -160,7 +160,7 @@ async fn get_jobs_in_company(pool: &PgPool) -> Result<Vec<JobExperience>, AppErr
     let job_info: Vec<JobInfo> = sqlx::query_as!(
         JobInfo,
         "select company_name, company_url, job_title , time_span, description 
-        from profile_jobs
+        from resume_jobs
         order by id desc"
     )
     .fetch_all(pool)

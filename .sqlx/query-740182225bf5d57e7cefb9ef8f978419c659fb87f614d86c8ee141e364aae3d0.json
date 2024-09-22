@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "select frameworks from profile_skills_frameworks",
+  "query": "select others from resume_skills_others",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "frameworks",
+        "name": "others",
         "type_info": "Text"
       }
     ],
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "2243337db6cb7e889a21c6c3b690d1569a3705fcec64c9cc64963a5f4a68ada0"
+  "hash": "740182225bf5d57e7cefb9ef8f978419c659fb87f614d86c8ee141e364aae3d0"
 }

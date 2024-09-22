@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "select company_name, company_url, job_title , time_span, description \n        from profile_jobs\n        order by id desc",
+  "query": "select company_name, company_url, job_title , time_span, description \n        from resume_jobs\n        order by id desc",
   "describe": {
     "columns": [
       {
@@ -40,5 +40,5 @@
       true
     ]
   },
-  "hash": "bb9c0ad8f777565f0adfa423fed0a6bdc94a1e7fa1699a3429abf8c45642ceeb"
+  "hash": "3af74fb2946612b86ead8af31ce6258ae9958f20ddb15bd8dca8297210374471"
 }

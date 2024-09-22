@@ -1,20 +1,21 @@
-[package]
-name = "digital-server"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+package.version = "0.1.0"
+package.edition = "2021"
+resolver = "2"
+members = ["server", "settings", "telebot"]
 
-[dependencies]
+[workspace.dependencies]
 anyhow = "1.0.89"
 aws-sdk-s3 = { version = "1.49.0", features = ["behavior-version-latest"] }
 axum = "0.7.5"
 figment = { version = "0.10.19", features = ["yaml", "env"] }
 indexmap = "2.5.0"
-secrecy = { version = "0.8.0", features = ["serde"] }
+secrecy = { version = "0.10.2", features = ["serde"] }
 serde = { version = "1.0.210", features = ["derive"] }
 thiserror = "1.0.63"
-tokio = { version = "1.37.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.37.0", features = ["rt-multi-thread", "macros"] }
 tower = "0.5.1"
-tower-http = { version = "0.5.2", features = ["cors", "trace"] }
+tower-http = { version = "0.6.0", features = ["cors", "trace"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 utoipa = { version = "4.2.3", features = ["axum_extras", "time"] }
@@ -22,11 +23,10 @@ utoipa-swagger-ui = { version = "7.1.0", features = ["axum", "vendored"] }
 utoipauto = "0.1.12"
 uuid = { version = "1.10.0", features = ["v4", "serde"] }
 
-[dependencies.sqlx]
-default-features = false
+[workspace.dependencies.sqlx]
+default_features = false
 features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "time", "macros", "migrate"]
 version = "0.8.2"
-
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3
@@ -39,10 +39,10 @@ debug = 0
 panic = "abort" # This leads to better optimizations and smaller binaries (and is the default in Wasm anyways).
 strip = true
 
-[lints.rust]
+[workspace.lints.rust]
 unsafe_code = "forbid"
 
-[lints.clippy]
+[workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"

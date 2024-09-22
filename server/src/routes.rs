@@ -6,8 +6,8 @@ use axum::{
     routing::get,
     Router,
 };
-use profile::get_profile;
-use secrecy::{ExposeSecret, Secret};
+use resume::get_resume;
+use secrecy::{ExposeSecret, SecretString};
 use tower::ServiceBuilder;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing::Span;
@@ -17,9 +17,9 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 use utoipauto::utoipauto;
 
-mod profile;
+mod resume;
 
-#[utoipauto]
+#[utoipauto(paths = "./server/src")]
 #[derive(OpenApi)]
 #[openapi()]
 struct ApiDoc;
@@ -27,7 +27,7 @@ struct ApiDoc;
 pub fn app_router(
     env: &Environment,
     app_state: AppState,
-    cors_allow_origin: &Secret<String>,
+    cors_allow_origin: &SecretString,
 ) -> Router {
     let cors_layer = CorsLayer::new()
         .allow_origin([cors_allow_origin.expose_secret().parse().unwrap()])
@@ -59,7 +59,7 @@ pub fn app_router(
     let layers = ServiceBuilder::new().layer(trace_layer).layer(cors_layer);
 
     let router = Router::new()
-        .route("/profile", get(get_profile))
+        .route("/profile", get(get_resume))
         .with_state(app_state)
         .layer(layers)
         .route("/", get(|| async { Html("<h1>Hello World!</h1>") }))

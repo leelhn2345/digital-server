@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "select\n        project_name, project_url, description\n        from profile_projects\n        order by id desc\n        ",
+  "query": "select\n        project_name, project_url, description\n        from resume_projects\n        order by id desc\n        ",
   "describe": {
     "columns": [
       {
@@ -28,5 +28,5 @@
       false
     ]
   },
-  "hash": "f0666380ff2dbcdbd57792c5de6d0178af2b452e81c861d7a26aa621bb4c07fc"
+  "hash": "9fe6e87bc85f41bda223a155460eb3b54aa50508c31f9a189b94758191c17301"
 }

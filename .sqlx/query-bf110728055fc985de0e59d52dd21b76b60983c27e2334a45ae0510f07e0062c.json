@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "select about_me from profile_about_me",
+  "query": "select tools from resume_skills_tools",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "about_me",
+        "name": "tools",
         "type_info": "Text"
       }
     ],
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "14953d09a8af667e352a23c071f256ac2425ef62241fc69eb89abcd61dd0974c"
+  "hash": "bf110728055fc985de0e59d52dd21b76b60983c27e2334a45ae0510f07e0062c"
 }
