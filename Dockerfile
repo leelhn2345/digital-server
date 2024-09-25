@@ -16,7 +16,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 
 ENV SQLX_OFFLINE=true
-RUN cargo build --release --bin digital-server
+RUN cargo build --release --bin server
 
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bookworm-slim AS runtime
@@ -29,8 +29,8 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 COPY settings settings
 COPY migrations migrations
-COPY --from=builder /app/target/release/digital-server digital-server
+COPY --from=builder /app/target/release/server server
 
 ENV APP_ENVIRONMENT=production
 
-ENTRYPOINT ["./digital-server"]
+ENTRYPOINT ["./server"]
