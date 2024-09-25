@@ -31,7 +31,7 @@ pub async fn init_app() {
     let env = Environment::new();
     let settings = Settings::new(&env).expect("failed to parse settings");
 
-    init_tracing(&env, vec!["digital_server", "telebot"]);
+    init_tracing(&env, vec!["server", "telebot"]);
 
     tracing::debug!("{settings:#?}");
 
