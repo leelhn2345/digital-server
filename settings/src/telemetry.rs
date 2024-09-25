@@ -1,6 +1,7 @@
-use crate::environment::Environment;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{filter::Targets, fmt, layer::SubscriberExt, util::SubscriberInitExt};
+
+use crate::Environment;
 
 pub fn init_tracing(env: &Environment, targets: Vec<&str>) {
     let trace_level = match &env {

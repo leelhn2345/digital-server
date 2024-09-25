@@ -7,17 +7,25 @@ pub enum Environment {
 }
 
 impl Environment {
+    #[must_use]
     pub fn new() -> Environment {
         std::env::var("APP_ENVIRONMENT")
             .unwrap_or("local".into())
             .parse()
             .expect("failed to parse APP_ENVIRONMENT")
     }
+    #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
             Environment::Local => "local",
             Environment::Production => "production",
         }
+    }
+}
+
+impl Default for Environment {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

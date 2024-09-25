@@ -6,3 +6,6 @@ dev:
 
 up:
 	docker compose --profile prod up -d
+
+prep:
+	cargo sqlx prepare --workspace

@@ -20,16 +20,14 @@ tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 utoipa = { version = "4.2.3", features = ["axum_extras", "time"] }
 utoipa-swagger-ui = { version = "7.1.0", features = ["axum", "vendored"] }
-utoipauto = "0.1.12"
+utoipauto = "0.1.14"
 uuid = { version = "1.10.0", features = ["v4", "serde"] }
+teloxide = "0.13.0"
 
 [workspace.dependencies.sqlx]
-default_features = false
+default-features = false
 features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "time", "macros", "migrate"]
 version = "0.8.2"
-
-[profile.dev.package.sqlx-macros]
-opt-level = 3
 
 [profile.dev]
 panic = "abort" # This leads to better optimizations and smaller binaries (and is the default in Wasm anyways).

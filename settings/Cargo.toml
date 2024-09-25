@@ -6,7 +6,11 @@ edition.workspace = true
 [dependencies]
 aws-sdk-s3.workspace = true
 figment.workspace = true
+secrecy.workspace = true
 serde.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
 
 [lints]
 workspace = true

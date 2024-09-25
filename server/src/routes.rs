@@ -8,11 +8,12 @@ use axum::{
 };
 use resume::get_resume;
 use secrecy::{ExposeSecret, SecretString};
+use settings::Environment;
 use tower::ServiceBuilder;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing::Span;
 
-use crate::{environment::Environment, AppState};
+use crate::AppState;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 use utoipauto::utoipauto;
@@ -59,7 +60,7 @@ pub fn app_router(
     let layers = ServiceBuilder::new().layer(trace_layer).layer(cors_layer);
 
     let router = Router::new()
-        .route("/profile", get(get_resume))
+        .route("/resume", get(get_resume))
         .with_state(app_state)
         .layer(layers)
         .route("/", get(|| async { Html("<h1>Hello World!</h1>") }))
