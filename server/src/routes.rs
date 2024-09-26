@@ -1,13 +1,12 @@
 use axum::{
     body::Body,
     extract::Request,
-    http::{header::CONTENT_TYPE, Response, StatusCode},
+    http::{header::CONTENT_TYPE, HeaderValue, Response, StatusCode},
     response::Html,
     routing::get,
     Router,
 };
 use resume::get_resume;
-use secrecy::{ExposeSecret, SecretString};
 use settings::Environment;
 use tower::ServiceBuilder;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
@@ -28,10 +27,15 @@ struct ApiDoc;
 pub fn app_router(
     env: &Environment,
     app_state: AppState,
-    cors_allow_origin: &SecretString,
+    cors_allow_origin: Vec<String>,
 ) -> Router {
+    let origins: Vec<HeaderValue> = cors_allow_origin
+        .into_iter()
+        .map(|x| x.parse::<HeaderValue>().unwrap())
+        .collect();
+
     let cors_layer = CorsLayer::new()
-        .allow_origin([cors_allow_origin.expose_secret().parse().unwrap()])
+        .allow_origin(origins)
         .allow_headers([CONTENT_TYPE])
         .allow_credentials(true);
 

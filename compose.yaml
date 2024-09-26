@@ -12,10 +12,15 @@ services:
       - shared-network
     env_file:
       - .env
+    ports:
+      - 5000:5000
     expose:
       - 5000
     environment:
       - APP_DATABASE__HOST=postgres-db
+      - APP_DATABASE__USERNAME=postgres
+      - APP_DATABASE__PASSWORD=password
+      - APP_DATABASE__PORT=5432
       - APP_APP__CORS_ALLOW_ORIGIN=http://digital-records:5173
 
   digital-server:
