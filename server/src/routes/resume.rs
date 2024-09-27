@@ -36,7 +36,7 @@ pub struct Skills {
 pub struct JobExperience {
     company_name: String,
     company_url: String,
-    job_in_company: Vec<JobInCompany>,
+    jobs_in_company: Vec<JobInCompany>,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -172,7 +172,7 @@ async fn get_jobs_in_company(pool: &PgPool) -> Result<Vec<JobExperience>, AppErr
         job_info_hashmap
             .entry(info.company_name.clone())
             .and_modify(|e| {
-                e.job_in_company.push(JobInCompany {
+                e.jobs_in_company.push(JobInCompany {
                     job_title: info.job_title.clone(),
                     time_span: info.time_span.clone(),
                     description: info.description.clone(),
@@ -181,7 +181,7 @@ async fn get_jobs_in_company(pool: &PgPool) -> Result<Vec<JobExperience>, AppErr
             .or_insert(JobExperience {
                 company_name: info.company_name,
                 company_url: info.company_url,
-                job_in_company: vec![JobInCompany {
+                jobs_in_company: vec![JobInCompany {
                     job_title: info.job_title,
                     time_span: info.time_span,
                     description: info.description,

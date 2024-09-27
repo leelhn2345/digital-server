@@ -1,5 +1,14 @@
+use async_openai::{config::OpenAIConfig, Client};
+use filters::{i_got_added, i_got_removed};
+use settings::{openai::OpenAISettings, stickers::Stickers};
 use sqlx::PgPool;
-use teloxide::update_listeners::webhooks;
+use teloxide::{
+    dispatching::MessageFilterExt,
+    requests::Requester,
+    types::{Me, Message},
+    update_listeners::webhooks,
+    utils::command::BotCommands,
+};
 
 use std::{convert::Infallible, net::SocketAddr};
 
@@ -15,20 +24,44 @@ use teloxide::{
 };
 
 mod commands;
+mod filters;
+mod handlers;
+mod sticker;
 
-pub struct BotAppState {
+#[derive(Clone)]
+pub struct BotState {
     #[expect(unused)]
     pool: PgPool,
+    #[expect(unused)]
+    openai: OpenAISettings,
+    #[expect(unused)]
+    chatgpt: Client<OpenAIConfig>,
+    bot_me: Me,
+    stickers: Stickers,
 }
 
-impl BotAppState {
+impl BotState {
     #[must_use]
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
+    pub async fn new(pool: PgPool, openai: OpenAISettings, bot: &Bot, stickers: Stickers) -> Self {
+        let chatgpt = Client::new();
+
+        bot.set_my_commands(commands::Command::bot_commands())
+            .await
+            .expect("error setting bot commands");
+
+        let me = bot.get_me().await.expect("cannot get details about bot.");
+
+        Self {
+            pool,
+            openai,
+            chatgpt,
+            bot_me: me,
+            stickers,
+        }
     }
 }
 
-pub async fn init_bot<T>(bot: Bot, listener: T, app_state: BotAppState)
+pub async fn init_bot<T>(bot: Bot, listener: T, app_state: BotState)
 where
     T: UpdateListener<Err = Infallible>,
 {
@@ -54,10 +87,22 @@ fn bot_handler() -> Handler<'static, DependencyMap, anyhow::Result<()>, DpHandle
     dptree::entry()
         .inspect(|u: Update| tracing::debug!("{:#?}", u))
         .branch(
-            Update::filter_message().branch(
-                dptree::entry()
-                    .filter_command::<Command>()
-                    .endpoint(Command::answer),
-            ),
+            Update::filter_message()
+                .branch(
+                    dptree::entry()
+                        .filter_command::<Command>()
+                        .endpoint(Command::answer),
+                )
+                .branch(Message::filter_group_chat_created().endpoint(handlers::me_join))
+                .branch(
+                    Message::filter_new_chat_members()
+                        .branch(dptree::filter(i_got_added).endpoint(handlers::me_join))
+                        .branch(dptree::endpoint(handlers::member_join)),
+                )
+                .branch(
+                    Message::filter_left_chat_member()
+                        .branch(dptree::filter(i_got_removed).endpoint(handlers::me_leave))
+                        .branch(dptree::endpoint(handlers::member_leave)),
+                ),
         )
 }

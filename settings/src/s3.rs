@@ -6,14 +6,15 @@ use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct S3 {
+pub struct S3Settings {
     region: String,
     access_key: SecretString,
     secret_key: SecretString,
     endpoint_url: String,
 }
 
-impl S3 {
+impl S3Settings {
+    #[must_use]
     pub fn new_client(self) -> Client {
         let creds = Credentials::new(
             self.access_key.expose_secret(),

@@ -1,5 +1,5 @@
-use settings::{telemetry::init_tracing, Environment, Settings};
-use telebot::{init_bot, BotAppState};
+use settings::{environment::Environment, telemetry::init_tracing, Settings};
+use telebot::{init_bot, BotState};
 use teloxide::{update_listeners::webhooks, Bot};
 
 #[tokio::main]
@@ -22,7 +22,7 @@ async fn main() {
 
     let pool = settings.database.get_connection_pool().await;
 
-    let app_state = BotAppState::new(pool);
+    let app_state = BotState::new(pool, settings.openai, &bot, settings.stickers).await;
 
     init_bot(bot, listener, app_state).await;
 }

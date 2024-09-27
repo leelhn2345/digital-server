@@ -4,3 +4,8 @@ database:
   database_name: digital_server
 s3:
   region: us-east-1
+openai:
+  chat:
+    model: gpt-3.5-turbo
+    max_tokens: 512
+    past_log_count: 20

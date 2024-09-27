@@ -6,13 +6,16 @@ members = ["server", "settings", "telebot"]
 
 [workspace.dependencies]
 anyhow = "1.0.89"
+async-openai = "0.24.1"
 aws-sdk-s3 = { version = "1.49.0", features = ["behavior-version-latest"] }
 axum = "0.7.5"
 figment = { version = "0.10.19", features = ["yaml", "env"] }
 indexmap = "2.5.0"
 secrecy = { version = "0.10.2", features = ["serde"] }
 serde = { version = "1.0.210", features = ["derive"] }
+teloxide = "0.13.0"
 thiserror = "1.0.63"
+time = { version = "0.3.36", features = ["serde-human-readable", "macros"] }
 tokio = { version = "1.37.0", features = ["rt-multi-thread", "macros"] }
 tower = "0.5.1"
 tower-http = { version = "0.6.0", features = ["cors", "trace"] }
@@ -22,12 +25,14 @@ utoipa = { version = "4.2.3", features = ["axum_extras", "time"] }
 utoipa-swagger-ui = { version = "7.1.0", features = ["axum", "vendored"] }
 utoipauto = "0.1.14"
 uuid = { version = "1.10.0", features = ["v4", "serde"] }
-teloxide = "0.13.0"
 
 [workspace.dependencies.sqlx]
 default-features = false
 features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "time", "macros", "migrate"]
 version = "0.8.2"
+
+[profile.dev.package.sqlx-macros]
+opt-level = 3
 
 [profile.dev]
 panic = "abort" # This leads to better optimizations and smaller binaries (and is the default in Wasm anyways).

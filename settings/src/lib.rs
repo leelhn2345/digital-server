@@ -1,25 +1,30 @@
-mod app;
-mod database;
-mod environment;
-mod s3;
+pub mod app;
+pub mod database;
+pub mod environment;
+pub mod openai;
+pub mod s3;
+pub mod stickers;
 pub mod telemetry;
 
 use app::AppSettings;
 use database::DatabaseSettings;
+use environment::Environment;
 use figment::{
     providers::{Env, Format, Yaml},
     Figment,
 };
-use s3::S3;
+use openai::OpenAISettings;
+use s3::S3Settings;
 use serde::Deserialize;
-
-pub use crate::environment::Environment;
+use stickers::Stickers;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Settings {
     pub app: AppSettings,
-    pub s3: S3,
+    pub s3: S3Settings,
     pub database: DatabaseSettings,
+    pub openai: OpenAISettings,
+    pub stickers: Stickers,
 }
 
 impl Settings {

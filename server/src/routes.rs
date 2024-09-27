@@ -7,7 +7,7 @@ use axum::{
     Router,
 };
 use resume::get_resume;
-use settings::Environment;
+use settings::environment::Environment;
 use tower::ServiceBuilder;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing::Span;
