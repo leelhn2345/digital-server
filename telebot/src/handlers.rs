@@ -1,61 +1,44 @@
+use chat::{chat_with_users, ChatState};
+use chatroom::update_title;
+use members::{me_join, me_leave, member_join, member_leave};
 use teloxide::{
-    payloads::SendMessageSetters,
-    requests::Requester,
-    types::{Message, ReplyParameters, User},
-    Bot,
+    dispatching::{
+        dialogue::InMemStorage, DpHandlerDescription, HandlerExt, MessageFilterExt, UpdateFilterExt,
+    },
+    dptree::{self, Handler},
+    prelude::DependencyMap,
+    types::{Message, Update},
 };
 
-use crate::{sticker::send_sticker, BotState};
+use crate::{
+    commands::Command,
+    filters::{group_title_change, i_got_added, i_got_removed, is_not_group_chat},
+};
 
-pub async fn me_join(bot: Bot, msg: Message, state: BotState) -> anyhow::Result<()> {
-    let bot_name = &state.bot_me.full_name();
-    let greet = format!("Hello everyone!! I am {bot_name}!");
-    send_sticker(&bot, &msg.chat.id, state.stickers.hello).await?;
-    bot.send_message(msg.chat.id, greet).await?;
-    Ok(())
-}
+pub mod chat;
+pub mod chatroom;
+mod members;
 
-/// TODO:
-pub async fn me_leave() -> anyhow::Result<()> {
-    Ok(())
-}
-
-pub async fn member_join(bot: Bot, msg: Message, state: BotState) -> anyhow::Result<()> {
-    let Some(new_users) = msg.new_chat_members() else {
-        return Ok(());
-    };
-
-    let users: Vec<User> = new_users
-        .iter()
-        .filter(|x| !x.is_bot)
-        .map(std::borrow::ToOwned::to_owned)
-        .collect();
-
-    if users.is_empty() {
-        return Ok(());
-    };
-
-    for user in users {
-        tokio::spawn({
-            let bot = bot.clone();
-            async move {
-                let text = match user.username {
-                    Some(username) => format!("Hello @{username}!"),
-                    None => format!("Hello {}!", user.first_name),
-                };
-                // not interested in result
-                let _ = bot
-                    .send_message(msg.chat.id, text)
-                    .reply_parameters(ReplyParameters::new(msg.id))
-                    .await;
-            }
-        });
-    }
-
-    send_sticker(&bot, &msg.chat.id, state.stickers.hello).await?;
-    Ok(())
-}
-
-pub async fn member_leave() -> anyhow::Result<()> {
-    Ok(())
+pub fn bot_handler() -> Handler<'static, DependencyMap, anyhow::Result<()>, DpHandlerDescription> {
+    dptree::entry()
+        .inspect(|u: Update| tracing::debug!("{:#?}", u))
+        .branch(
+            Update::filter_message()
+                .enter_dialogue::<Message, InMemStorage<ChatState>, ChatState>()
+                .branch(teloxide::filter_command::<Command, _>().endpoint(Command::answer))
+                .branch(Message::filter_group_chat_created().endpoint(me_join))
+                .branch(
+                    Message::filter_new_chat_members()
+                        .branch(dptree::filter(i_got_added).endpoint(me_join))
+                        .branch(dptree::endpoint(member_join)),
+                )
+                .branch(
+                    Message::filter_left_chat_member()
+                        .branch(dptree::filter(i_got_removed).endpoint(me_leave))
+                        .branch(dptree::endpoint(member_leave)),
+                )
+                .branch(dptree::filter(group_title_change).endpoint(update_title))
+                .branch(dptree::filter(is_not_group_chat).endpoint(chat_with_users))
+                .branch(dptree::case![ChatState::Talk].endpoint(chat_with_users)),
+        )
 }

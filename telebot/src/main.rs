@@ -22,7 +22,7 @@ async fn main() {
 
     let pool = settings.database.get_connection_pool().await;
 
-    let app_state = BotState::new(pool, settings.openai, &bot, settings.stickers).await;
+    let app_state = BotState::new(pool, settings.openai, settings.stickers);
 
     init_bot(bot, listener, app_state).await;
 }

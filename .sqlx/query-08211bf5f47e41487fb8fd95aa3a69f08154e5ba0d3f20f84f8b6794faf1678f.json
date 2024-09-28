@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "insert into tele_chatlogs\n        (chatroom_id, name, role, content, datetime)\n        values\n        ($1, $2, $3, $4, $5)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "08211bf5f47e41487fb8fd95aa3a69f08154e5ba0d3f20f84f8b6794faf1678f"
+}

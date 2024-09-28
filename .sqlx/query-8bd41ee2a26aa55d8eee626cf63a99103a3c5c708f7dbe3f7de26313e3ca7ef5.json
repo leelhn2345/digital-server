@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "delete from tele_chatrooms where id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8bd41ee2a26aa55d8eee626cf63a99103a3c5c708f7dbe3f7de26313e3ca7ef5"
+}

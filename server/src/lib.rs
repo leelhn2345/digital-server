@@ -53,7 +53,7 @@ pub async fn init_app() {
     let pool = settings.database.get_connection_pool().await;
 
     let app_state = AppState::new(pool.clone(), s3);
-    let bot_state = BotState::new(pool, settings.openai, &bot, settings.stickers).await;
+    let bot_state = BotState::new(pool, settings.openai, settings.stickers);
 
     let router = app_router(&env, app_state, settings.app.cors_allow_origin);
     let router = router.merge(teloxide_router);

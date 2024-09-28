@@ -8,6 +8,5 @@ pub struct OpenAISettings {
 #[derive(Deserialize, Clone, Debug)]
 pub struct ChatSettings {
     pub model: String,
-    pub max_tokens: u16,
     pub past_log_count: i64,
 }

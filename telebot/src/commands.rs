@@ -1,6 +1,15 @@
 use teloxide::{requests::Requester, types::Message, utils::command::BotCommands, Bot};
 use time::{format_description::well_known::Rfc2822, macros::offset, OffsetDateTime};
 
+use crate::{
+    handlers::{
+        chat::{ChatDialogue, ChatState},
+        chatroom::save_chatroom,
+    },
+    sticker::send_sticker,
+    BotState,
+};
+
 #[derive(BotCommands, Clone)]
 #[command(
     rename_rule = "lowercase",
@@ -13,23 +22,50 @@ pub enum Command {
     Help,
     /// Current datetime (GMT+8)
     DateTime,
+    /// Start responding to messages
+    Chat,
+    /// Stop responding to messages
+    ShutUp,
 }
 impl Command {
     #[tracing::instrument(skip_all)]
-    pub async fn answer(bot: Bot, msg: Message, cmd: Command) -> anyhow::Result<()> {
+    pub async fn answer(
+        bot: Bot,
+        msg: Message,
+        cmd: Command,
+        state: BotState,
+        chat_dialogue: ChatDialogue,
+    ) -> anyhow::Result<()> {
         let chat_id = msg.chat.id;
 
         match cmd {
-            Self::Start => bot.send_message(chat_id, "wtf im not ready yet").await?,
+            Self::Start => {
+                save_chatroom(&msg, &state.pool).await.map_err(|e| {
+                    tracing::error!("{e:#?}");
+                    e
+                })?;
+                bot.send_message(chat_id, "wtf im not ready yet").await?;
+            }
             Self::Help => {
                 bot.send_message(chat_id, Self::descriptions().to_string())
-                    .await?
+                    .await?;
             }
             Self::DateTime => {
                 let now = OffsetDateTime::now_utc()
                     .to_offset(offset!(+8))
                     .format(&Rfc2822)?;
-                bot.send_message(chat_id, now).await?
+                bot.send_message(chat_id, now).await?;
+            }
+            Self::Chat => {
+                chat_dialogue.update(ChatState::Talk).await?;
+                bot.send_message(chat_id, "Hello! What do you wanna chat about?? 😊")
+                    .await?;
+            }
+            Self::ShutUp => {
+                chat_dialogue.update(ChatState::ShutUp).await?;
+                send_sticker(&bot, &chat_id, state.stickers.whatever).await?;
+                bot.send_message(chat_id, "Huh?! Whatever 🙄. Byebye I'm off.")
+                    .await?;
             }
         };
 

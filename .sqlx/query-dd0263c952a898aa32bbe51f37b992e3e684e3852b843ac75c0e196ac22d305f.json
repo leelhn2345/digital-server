@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "insert into tele_chatrooms \n        (id, title, is_group, joined_at)\n        values \n        ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text",
+        "Bool",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dd0263c952a898aa32bbe51f37b992e3e684e3852b843ac75c0e196ac22d305f"
+}
