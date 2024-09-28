@@ -16,7 +16,7 @@ use teloxide::{
     payloads::SendMessageSetters,
     prelude::Dialogue,
     requests::Requester,
-    types::{Me, Message, ReplyParameters},
+    types::{Me, Message, ParseMode, ReplyParameters},
     Bot,
 };
 use time::OffsetDateTime;
@@ -32,9 +32,11 @@ pub enum ChatState {
     Talk,
 }
 
+// use redis state update
 pub type ChatDialogue = Dialogue<ChatState, InMemStorage<ChatState>>;
 
 #[tracing::instrument(skip_all)]
+#[allow(deprecated)]
 pub async fn chat_with_users(
     msg: Message,
     bot: Bot,
@@ -124,6 +126,7 @@ pub async fn chat_with_users(
     tx.commit().await?;
 
     bot.send_message(msg.chat.id, chat_res)
+        .parse_mode(ParseMode::Markdown)
         .reply_parameters(ReplyParameters::new(msg.id))
         .await?;
 
