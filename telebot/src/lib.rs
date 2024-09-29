@@ -1,9 +1,11 @@
 use async_openai::{config::OpenAIConfig, Client};
-use handlers::{bot_handler, chat::ChatState};
+use handlers::{bot_handler, chat::ChatStorage};
 use settings::{openai::OpenAISettings, stickers::Stickers};
 use sqlx::PgPool;
 use teloxide::{
-    dispatching::dialogue::InMemStorage, requests::Requester, update_listeners::webhooks,
+    dispatching::dialogue::{serializer::Bincode, RedisStorage, Storage},
+    requests::Requester,
+    update_listeners::webhooks,
     utils::command::BotCommands,
 };
 
@@ -18,6 +20,7 @@ use teloxide::{
 };
 
 mod commands;
+mod errors;
 mod filters;
 mod handlers;
 mod sticker;
@@ -44,7 +47,7 @@ impl BotState {
     }
 }
 
-pub async fn init_bot<T>(bot: Bot, listener: T, app_state: BotState)
+pub async fn init_bot<T>(bot: Bot, listener: T, app_state: BotState, redis_url: String)
 where
     T: UpdateListener<Err = Infallible>,
 {
@@ -52,9 +55,14 @@ where
         .await
         .expect("error setting bot commands");
 
+    let chat_storage: ChatStorage = RedisStorage::open(redis_url.as_ref(), Bincode)
+        .await
+        .expect("error connecting to redis")
+        .erase();
+
     Box::pin(
         Dispatcher::builder(bot, bot_handler())
-            .dependencies(dptree::deps![app_state, InMemStorage::<ChatState>::new()])
+            .dependencies(dptree::deps![app_state, chat_storage])
             .enable_ctrlc_handler()
             .build()
             .dispatch_with_listener(listener, LoggingErrorHandler::new()),

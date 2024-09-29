@@ -2,6 +2,7 @@ pub mod app;
 pub mod database;
 pub mod environment;
 pub mod openai;
+pub mod redis;
 pub mod s3;
 pub mod stickers;
 pub mod telemetry;
@@ -14,6 +15,7 @@ use figment::{
     Figment,
 };
 use openai::OpenAISettings;
+use redis::RedisSettings;
 use s3::S3Settings;
 use serde::Deserialize;
 use stickers::Stickers;
@@ -25,6 +27,7 @@ pub struct Settings {
     pub database: DatabaseSettings,
     pub openai: OpenAISettings,
     pub stickers: Stickers,
+    pub redis: RedisSettings,
 }
 
 impl Settings {

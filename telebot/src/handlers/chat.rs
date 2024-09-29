@@ -1,4 +1,5 @@
-use anyhow::Context;
+use std::sync::Arc;
+
 use async_openai::{
     config::OpenAIConfig,
     error::OpenAIError,
@@ -9,10 +10,11 @@ use async_openai::{
     },
     Client,
 };
+use serde::{Deserialize, Serialize};
 use settings::openai::OpenAISettings;
 use sqlx::{postgres::PgDatabaseError, PgPool, Postgres, Transaction};
 use teloxide::{
-    dispatching::dialogue::InMemStorage,
+    dispatching::dialogue::ErasedStorage,
     payloads::SendMessageSetters,
     prelude::Dialogue,
     requests::Requester,
@@ -21,28 +23,24 @@ use teloxide::{
 };
 use time::OffsetDateTime;
 
-use crate::BotState;
+use crate::{errors::chat::ChatError, BotState};
 
 use super::chatroom::save_chatroom;
+use super::HandlerResult;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Deserialize, Serialize)]
 pub enum ChatState {
     #[default]
     ShutUp,
     Talk,
 }
 
-// use redis state update
-pub type ChatDialogue = Dialogue<ChatState, InMemStorage<ChatState>>;
+pub type ChatDialogue = Dialogue<ChatState, ErasedStorage<ChatState>>;
+pub type ChatStorage = Arc<ErasedStorage<ChatState>>;
 
 #[tracing::instrument(skip_all)]
 #[allow(deprecated)]
-pub async fn chat_with_users(
-    msg: Message,
-    bot: Bot,
-    state: BotState,
-    me: Me,
-) -> anyhow::Result<()> {
+pub async fn chat_with_users(msg: Message, bot: Bot, state: BotState, me: Me) -> HandlerResult {
     let user = match msg.from {
         Some(ref user) => {
             if user.is_bot {
@@ -141,7 +139,7 @@ async fn chatgpt_chat(
     client: Client<OpenAIConfig>,
     settings: OpenAISettings,
     chat_msg: Vec<ChatCompletionRequestMessage>,
-) -> anyhow::Result<String> {
+) -> Result<String, ChatError> {
     let req = CreateChatCompletionRequestArgs::default()
         .model(settings.chat.model)
         .messages(chat_msg)
@@ -152,11 +150,15 @@ async fn chatgpt_chat(
     let chat_res = res
         .choices
         .first()
-        .context("there is no chat completion choice")?
+        .ok_or(ChatError::Unknown(
+            "there is no chat completion choice".to_string(),
+        ))?
         .to_owned()
         .message
         .content
-        .context("chat completion choice is empty")?;
+        .ok_or(ChatError::Unknown(
+            "chat completion choice is empty".to_string(),
+        ))?;
 
     Ok(chat_res)
 }
@@ -200,7 +202,7 @@ async fn get_past_chat_logs(
     pool: &PgPool,
     msg_id: i64,
     past_msg_count: i64,
-) -> anyhow::Result<Vec<ChatCompletionRequestMessage>> {
+) -> Result<Vec<ChatCompletionRequestMessage>, ChatError> {
     let past_msges: Vec<PastChatMsg> = sqlx::query_as!(
         PastChatMsg,
         "

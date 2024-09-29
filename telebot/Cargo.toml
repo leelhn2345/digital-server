@@ -4,14 +4,18 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-anyhow.workspace = true
 async-openai = { workspace = true }
+serde.workspace = true
 settings = { version = "0.1.0", path = "../settings" }
 sqlx.workspace = true
-teloxide = { workspace = true, features = ["macros", "webhooks", "webhooks-axum"] }
+thiserror.workspace = true
 time = { workspace = true }
 tokio.workspace = true
 tracing.workspace = true
+
+[dependencies.teloxide]
+features = ["macros", "webhooks", "webhooks-axum", "redis-storage", "bincode-serializer"]
+workspace = true
 
 [lints]
 workspace = true

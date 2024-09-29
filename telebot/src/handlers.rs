@@ -3,7 +3,8 @@ use chatroom::update_title;
 use members::{me_join, me_leave, member_join, member_leave};
 use teloxide::{
     dispatching::{
-        dialogue::InMemStorage, DpHandlerDescription, HandlerExt, MessageFilterExt, UpdateFilterExt,
+        dialogue::ErasedStorage, DpHandlerDescription, HandlerExt, MessageFilterExt,
+        UpdateFilterExt,
     },
     dptree::{self, Handler},
     prelude::DependencyMap,
@@ -17,14 +18,16 @@ use crate::{
 
 pub mod chat;
 pub mod chatroom;
-mod members;
+pub mod members;
 
-pub fn bot_handler() -> Handler<'static, DependencyMap, anyhow::Result<()>, DpHandlerDescription> {
+pub type HandlerResult = Result<(), Box<dyn std::error::Error + Send + Sync>>;
+
+pub fn bot_handler() -> Handler<'static, DependencyMap, HandlerResult, DpHandlerDescription> {
     dptree::entry()
         .inspect(|u: Update| tracing::debug!("{:#?}", u))
         .branch(
             Update::filter_message()
-                .enter_dialogue::<Message, InMemStorage<ChatState>, ChatState>()
+                .enter_dialogue::<Message, ErasedStorage<ChatState>, ChatState>()
                 .branch(teloxide::filter_command::<Command, _>().endpoint(Command::answer))
                 .branch(Message::filter_group_chat_created().endpoint(me_join))
                 .branch(

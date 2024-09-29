@@ -60,7 +60,13 @@ pub async fn init_app() {
 
     init_server(addr, router, stop_token, stop_flag);
 
-    init_bot(bot, update_listener, bot_state).await;
+    init_bot(
+        bot,
+        update_listener,
+        bot_state,
+        settings.redis.connection_string(),
+    )
+    .await;
 }
 
 fn init_server<T>(addr: SocketAddr, router: Router, stop_token: StopToken, stop_flag: T)

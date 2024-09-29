@@ -7,9 +7,9 @@ use teloxide::{
 
 use crate::{handlers::chatroom::delete_chatroom, sticker::send_sticker, BotState};
 
-use super::chatroom::save_chatroom;
+use super::{chatroom::save_chatroom, HandlerResult};
 
-pub async fn me_join(bot: Bot, msg: Message, me: Me, state: BotState) -> anyhow::Result<()> {
+pub async fn me_join(bot: Bot, msg: Message, me: Me, state: BotState) -> HandlerResult {
     let bot_name = me.full_name();
     save_chatroom(&msg, &state.pool).await?;
     let greet = format!("Hello everyone!! I am {bot_name}!");
@@ -19,13 +19,13 @@ pub async fn me_join(bot: Bot, msg: Message, me: Me, state: BotState) -> anyhow:
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn me_leave(state: BotState, msg: Message) -> anyhow::Result<()> {
+pub async fn me_leave(state: BotState, msg: Message) -> HandlerResult {
     tracing::debug!("i just left the chat");
     delete_chatroom(&state.pool, msg.chat.id.0).await?;
     Ok(())
 }
 
-pub async fn member_join(bot: Bot, msg: Message, state: BotState) -> anyhow::Result<()> {
+pub async fn member_join(bot: Bot, msg: Message, state: BotState) -> HandlerResult {
     let Some(new_users) = msg.new_chat_members() else {
         return Ok(());
     };
@@ -62,7 +62,7 @@ pub async fn member_join(bot: Bot, msg: Message, state: BotState) -> anyhow::Res
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn member_leave(msg: Message, state: BotState, bot: Bot) -> anyhow::Result<()> {
+pub async fn member_leave(msg: Message, state: BotState, bot: Bot) -> HandlerResult {
     let Some(member) = msg.left_chat_member() else {
         return Ok(());
     };

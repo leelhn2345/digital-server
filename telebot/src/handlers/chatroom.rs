@@ -4,7 +4,9 @@ use time::OffsetDateTime;
 
 use crate::filters::is_group_chat;
 
-pub async fn update_title() -> anyhow::Result<()> {
+use super::HandlerResult;
+
+pub async fn update_title() -> HandlerResult {
     Ok(())
 }
 

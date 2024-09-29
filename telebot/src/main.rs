@@ -24,5 +24,5 @@ async fn main() {
 
     let app_state = BotState::new(pool, settings.openai, settings.stickers);
 
-    init_bot(bot, listener, app_state).await;
+    init_bot(bot, listener, app_state, settings.redis.connection_string()).await;
 }

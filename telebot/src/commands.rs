@@ -2,9 +2,11 @@ use teloxide::{requests::Requester, types::Message, utils::command::BotCommands,
 use time::{format_description::well_known::Rfc2822, macros::offset, OffsetDateTime};
 
 use crate::{
+    filters::is_group_chat,
     handlers::{
         chat::{ChatDialogue, ChatState},
         chatroom::save_chatroom,
+        HandlerResult,
     },
     sticker::send_sticker,
     BotState,
@@ -35,7 +37,7 @@ impl Command {
         cmd: Command,
         state: BotState,
         chat_dialogue: ChatDialogue,
-    ) -> anyhow::Result<()> {
+    ) -> HandlerResult {
         let chat_id = msg.chat.id;
 
         match cmd {
@@ -57,15 +59,26 @@ impl Command {
                 bot.send_message(chat_id, now).await?;
             }
             Self::Chat => {
-                chat_dialogue.update(ChatState::Talk).await?;
-                bot.send_message(chat_id, "Hello! What do you wanna chat about?? 😊")
-                    .await?;
+                if is_group_chat(msg) {
+                    chat_dialogue.update(ChatState::Talk).await?;
+                    send_sticker(&bot, &chat_id, state.stickers.hello).await?;
+                    bot.send_message(chat_id, "Hello! What do you wanna chat about?? 😊")
+                        .await?;
+                } else {
+                    bot.send_message(chat_id, "This command is only available in group chats.")
+                        .await?;
+                }
             }
             Self::ShutUp => {
-                chat_dialogue.update(ChatState::ShutUp).await?;
-                send_sticker(&bot, &chat_id, state.stickers.whatever).await?;
-                bot.send_message(chat_id, "Huh?! Whatever 🙄. Byebye I'm off.")
-                    .await?;
+                if is_group_chat(msg) {
+                    chat_dialogue.update(ChatState::ShutUp).await?;
+                    send_sticker(&bot, &chat_id, state.stickers.whatever).await?;
+                    bot.send_message(chat_id, "Huh?! Whatever 🙄. Byebye I'm off.")
+                        .await?;
+                } else {
+                    bot.send_message(chat_id, "This command is only available in group chats.")
+                        .await?;
+                }
             }
         };
 

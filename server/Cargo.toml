@@ -8,7 +8,6 @@ anyhow = { workspace = true }
 aws-sdk-s3 = { workspace = true }
 axum = { workspace = true }
 indexmap = { workspace = true }
-secrecy = { workspace = true }
 serde = { workspace = true }
 settings = { version = "0.1.0", path = "../settings" }
 sqlx = { workspace = true }
