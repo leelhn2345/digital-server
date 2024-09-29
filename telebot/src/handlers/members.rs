@@ -7,7 +7,7 @@ use teloxide::{
 
 use crate::{handlers::chatroom::delete_chatroom, sticker::send_sticker, BotState};
 
-use super::{chatroom::save_chatroom, HandlerResult};
+use super::{chat::ChatDialogue, chatroom::save_chatroom, HandlerResult};
 
 pub async fn me_join(bot: Bot, msg: Message, me: Me, state: BotState) -> HandlerResult {
     let bot_name = me.full_name();
@@ -19,8 +19,9 @@ pub async fn me_join(bot: Bot, msg: Message, me: Me, state: BotState) -> Handler
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn me_leave(state: BotState, msg: Message) -> HandlerResult {
+pub async fn me_leave(state: BotState, msg: Message, chat_dialogue: ChatDialogue) -> HandlerResult {
     tracing::debug!("i just left the chat");
+    chat_dialogue.exit().await?;
     delete_chatroom(&state.pool, msg.chat.id.0).await?;
     Ok(())
 }
