@@ -22,7 +22,12 @@ async fn main() {
 
     let pool = settings.database.get_connection_pool().await;
 
-    let app_state = BotState::new(pool, settings.openai, settings.stickers);
+    let app_state = BotState::new(
+        pool,
+        settings.openai,
+        settings.stickers,
+        settings.s3.new_client(),
+    );
 
     init_bot(bot, listener, app_state, settings.redis.connection_string()).await;
 }

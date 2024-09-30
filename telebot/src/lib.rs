@@ -25,17 +25,21 @@ mod filters;
 mod handlers;
 mod sticker;
 
+type OpenAIClient = Client<OpenAIConfig>;
+type S3Client = aws_sdk_s3::Client;
+
 #[derive(Clone)]
 pub struct BotState {
     pool: PgPool,
     openai: OpenAISettings,
-    chatgpt: Client<OpenAIConfig>,
+    chatgpt: OpenAIClient,
     stickers: Stickers,
+    s3: S3Client,
 }
 
 impl BotState {
     #[must_use]
-    pub fn new(pool: PgPool, openai: OpenAISettings, stickers: Stickers) -> Self {
+    pub fn new(pool: PgPool, openai: OpenAISettings, stickers: Stickers, s3: S3Client) -> Self {
         let chatgpt = Client::new();
 
         Self {
@@ -43,6 +47,7 @@ impl BotState {
             openai,
             chatgpt,
             stickers,
+            s3,
         }
     }
 }

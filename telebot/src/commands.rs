@@ -1,4 +1,13 @@
-use teloxide::{requests::Requester, types::Message, utils::command::BotCommands, Bot};
+use std::time::Duration;
+
+use aws_sdk_s3::presigning::PresigningConfig;
+use teloxide::{
+    payloads::SendPhotoSetters,
+    requests::Requester,
+    types::{InputFile, Message},
+    utils::command::BotCommands,
+    Bot,
+};
 use time::{format_description::well_known::Rfc2822, macros::offset, OffsetDateTime};
 
 use crate::{
@@ -28,6 +37,8 @@ pub enum Command {
     Chat,
     /// Stop responding to messages
     ShutUp,
+    /// Support me in my growth
+    Feed,
 }
 impl Command {
     #[tracing::instrument(skip_all)]
@@ -79,6 +90,34 @@ impl Command {
                     bot.send_message(chat_id, "This command is only available in group chats.")
                         .await?;
                 }
+            }
+            // NOTE: this command only works in prod due to presigned config.
+            // ensure that `bucket` and `key` is valid.
+            Self::Feed => {
+                let req = state
+                    .s3
+                    .get_object()
+                    .bucket("public")
+                    .key("bmc_qr.png")
+                    .presigned(
+                        PresigningConfig::expires_in(Duration::from_secs(60)).inspect_err(|e| {
+                            tracing::error!("can't get presigned req");
+                            tracing::error!("{e:#?}");
+                        })?,
+                    )
+                    .await?;
+                bot.send_photo(
+                    chat_id,
+                    InputFile::url(req.uri().parse().inspect_err(|e| {
+                        tracing::error!("can't be parsed into url");
+                        tracing::error!("{e:#?}");
+                    })?),
+                )
+                .caption(
+                    "https://buymeacoffee.com/hahahehehoho
+\nThanks for supporting me in my growth! 😊🐢",
+                )
+                .await?;
             }
         };
 

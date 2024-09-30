@@ -24,8 +24,6 @@ pub async fn save_chatroom(msg: &Message, pool: &PgPool) -> Result<(), sqlx::Err
     let is_group = is_group_chat(msg.to_owned());
     let now = OffsetDateTime::now_utc();
 
-    tracing::debug!("saving chatroom");
-
     match sqlx::query!(
         "insert into tele_chatrooms 
         (id, title, is_group, joined_at)
@@ -39,7 +37,10 @@ pub async fn save_chatroom(msg: &Message, pool: &PgPool) -> Result<(), sqlx::Err
     .execute(pool)
     .await
     {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            tracing::debug!("chatroom save");
+            Ok(())
+        }
         Err(e) => {
             if let Some(db_err) = e.as_database_error() {
                 if let Some(pg_err) = db_err.try_downcast_ref::<PgDatabaseError>() {

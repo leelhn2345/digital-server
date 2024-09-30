@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 async-openai = { workspace = true }
+aws-sdk-s3.workspace = true
 serde.workspace = true
 settings = { version = "0.1.0", path = "../settings" }
 sqlx.workspace = true
