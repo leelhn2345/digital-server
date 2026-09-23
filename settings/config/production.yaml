@@ -1,4 +1,0 @@
-app:
-  host: 0.0.0.0
-  cors_allow_origin:
-    - https://digitalrecords.cloud
