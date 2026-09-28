@@ -1,7 +1,7 @@
 pub mod config;
+pub mod trace;
 
-pub mod logs;
-
+#[tracing::instrument]
 pub fn hello() {
-    println!("hello");
+    tracing::info!("byebye world");
 }

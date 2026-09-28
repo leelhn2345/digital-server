@@ -1,6 +1,6 @@
 use server::config;
 use server::hello;
-use server::logs::init_tracing;
+use server::trace::init_tracing;
 
 #[tokio::main]
 async fn main() {
@@ -9,4 +9,5 @@ async fn main() {
     init_tracing(env, &["server"]);
     println!("{env:#?}");
     hello();
+    let pool = config.get_database().get_connection_pool().await;
 }

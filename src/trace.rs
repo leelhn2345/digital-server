@@ -5,7 +5,7 @@ use crate::config::environment::Environment;
 
 pub fn init_tracing(env: &Environment, targets: &[&str]) {
     let trace_level = match &env {
-        Environment::Development | Environment::Staging => LevelFilter::DEBUG,
+        Environment::Development | Environment::Staging => LevelFilter::WARN,
         Environment::Production => LevelFilter::INFO,
     };
     let targets_with_level: Vec<(&str, LevelFilter)> =
