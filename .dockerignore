@@ -3,7 +3,9 @@ target
 .dockerignore
 Dockerfile
 Makefile
+justfile
 compose.yaml
 .taplo.toml
 .gitignore
+.ignore
 .env

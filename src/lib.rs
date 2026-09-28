@@ -1,7 +1,7 @@
 pub mod config;
 pub mod trace;
 
-#[tracing::instrument]
-pub fn hello() {
-    tracing::info!("byebye world");
+#[tracing::instrument(skip_all)]
+pub fn hello(msg: &str) {
+    tracing::info!("byebye bye world from the {msg} environment");
 }

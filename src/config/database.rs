@@ -10,7 +10,7 @@ use sqlx::{
 
 const CONNECTION_TIMEOUT: u64 = 2;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Database {
     username: String,
     password: SecretString,

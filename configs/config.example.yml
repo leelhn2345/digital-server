@@ -1,1 +1,11 @@
-environment: local
+environment: dev
+
+database:
+  name: rust_server
+  host: 127.0.0.1
+  port: 5432
+  username: postgres
+  password: password
+
+log_targets:
+  - server

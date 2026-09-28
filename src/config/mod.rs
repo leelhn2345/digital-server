@@ -9,12 +9,14 @@ use crate::config::{database::Database, environment::Environment};
 mod database;
 pub mod environment;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Config {
     #[serde(default = "Environment::new")]
     environment: Environment,
 
     database: Database,
+
+    log_targets: Vec<String>,
 }
 
 impl Config {
@@ -36,5 +38,9 @@ impl Config {
 
     pub fn get_database(&self) -> &Database {
         &self.database
+    }
+
+    pub fn get_log_targets(&self) -> &Vec<String> {
+        &self.log_targets
     }
 }
