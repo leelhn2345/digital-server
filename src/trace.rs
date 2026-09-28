@@ -10,6 +10,7 @@ pub fn init_tracing(env: &Environment, targets: &[String]) {
         Environment::Development | Environment::Staging => LevelFilter::DEBUG,
         Environment::Production => LevelFilter::INFO,
     };
+
     let targets_with_level: Vec<(String, LevelFilter)> =
         targets.iter().map(|s| (s.into(), trace_level)).collect();
 
